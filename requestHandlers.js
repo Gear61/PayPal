@@ -1,5 +1,8 @@
+"use strict";
+
+var fs = require('fs');
 var RateServer = require("./RateServer");
-var exec = require("child_process").exec;
+var TransactionServer = require("./TransactionServer");
 
 function showMenu(response, query)
 {
@@ -96,8 +99,42 @@ function rateForm(response, query)
 	response.end();
 }
 
+function activity(response, query)
+{
+	TransactionServer.createTransactionsList(function(message)
+	{
+		var body = '<html>'
+				+ '<head><title>Transactions List</title>'
+				+ '<style>'
+				+ 'table,th,td'
+				+ '{'
+				+ 	'border:1px solid black;'
+				+ 	'border-collapse:collapse;'
+				+ '}'
+				+ 	'th,td'
+				+ '{'
+				+ 	'padding:5px;'
+				+ '}'
+				+ '</style>'
+				+ '</head>'
+				+ '<body bgcolor=white>'
+				+ '<h1>Transactions List</h1>'
+				+ message
+				+ '</body>'
+				+ '</html>';
+
+		response.writeHead(200,
+		{
+			"Content-Type" : "text/html"
+		});
+		response.write(body);
+		response.end();
+	});
+}
+
 function currencyConversion(response, query)
 {
+	var fresh;
 	if (query['fresh'] == 'on')
 	{
 		fresh = true;
@@ -112,7 +149,7 @@ function currencyConversion(response, query)
 				var body = '<html>' + 
 				'<head><title>Get Conversion Rate</title></head>' + 
 				'<body bgcolor=white>' +
-				'<h1>Currency Conversion</h1>' + 
+				'<h1>Conversion Rate</h1>' + 
 				message + 
 				'</body>' + 
 				'</html>';
@@ -128,6 +165,7 @@ function currencyConversion(response, query)
 
 function conversionRate(response, query)
 {
+	var fresh;
 	if (query['fresh'] == 'on')
 	{
 		fresh = true;
@@ -159,5 +197,6 @@ function conversionRate(response, query)
 exports.showMenu = showMenu;
 exports.ccForm = ccForm;
 exports.rateForm = rateForm;
+exports.activity = activity;
 exports.currencyConversion = currencyConversion;
 exports.conversionRate = conversionRate;

@@ -8,6 +8,7 @@ var handle = {};
 handle["/paypal"] = requestHandlers.showMenu;
 handle["/paypal/ccForm"] = requestHandlers.ccForm;
 handle["/paypal/rateForm"] = requestHandlers.rateForm;
+handle["/paypal/activity"] = requestHandlers.activity;
 handle["/paypal/currencyConversion"] = requestHandlers.currencyConversion;
 handle["/paypal/conversionRate"] = requestHandlers.conversionRate;
 

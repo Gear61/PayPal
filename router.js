@@ -16,7 +16,7 @@ function route(handle, pathname, response, requestURL)
 		{
 			"Content-Type" : "text/plain"
 		});
-		response.write("404 Not found");
+		response.write("404 - Not Found");
 		response.end();
 	}
 }
