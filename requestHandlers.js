@@ -147,9 +147,9 @@ function currencyConversion(response, query)
 		  function(message)
 		  {
 				var body = '<html>' + 
-				'<head><title>Get Conversion Rate</title></head>' + 
+				'<head><title>Converted Currency</title></head>' + 
 				'<body bgcolor=white>' +
-				'<h1>Conversion Rate</h1>' + 
+				'<h1>Converted Currency</h1>' + 
 				message + 
 				'</body>' + 
 				'</html>';
@@ -178,9 +178,9 @@ function conversionRate(response, query)
 			function(message)
 			{
 				var body = '<html>' + 
-				'<head><title>Get Conversion Rate</title></head>' + 
+				'<head><title>Conversion Rate</title></head>' + 
 				'<body bgcolor=white>' +
-				'<h1>Currency Conversion</h1>' + 
+				'<h1>Conversion Rate</h1>' + 
 				message + 
 				'</body>' + 
 				'</html>';
