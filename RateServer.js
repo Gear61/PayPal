@@ -76,6 +76,8 @@ function getConversionRate(countryCodeFROM, countryCodeTO, fresh, callback)
 
 function getRate(countryCode1, countryCode2, fresh, callback)
 {
+	// If we want fresh data, call fetchData and use its return value to
+	// renew the file and grab the rates when it finishes
 	if (fresh)
 	{
 		fetchData(function (conversionRates)
@@ -135,11 +137,14 @@ function getRateFromFile(countryCode, callback)
 		{
 		    if (!err)
 		    {
-			    if (data.indexOf('\n' + countryCode + ' ') == -1)
+			    // We look for the pattern \n(COUNTRY_CODE) (space)
+		    	if (data.indexOf('\n' + countryCode + ' ') == -1)
 			    {
 			    	callback(-1);
 			    }
-			    else
+			    // If we find it, we split it what comes after it but before the new line, 
+		    	// which is the rate we're interested in
+		    	else
 			    {
 			    	callback((data.split(countryCode + " ")[1]).split('\n')[0]);
 			    }
@@ -157,6 +162,7 @@ function getRateFromFile(countryCode, callback)
 	}
 }
 
+// Uses the API to grab fresh conversion rates
 function fetchData(callback)
 {
 	console.log("Getting fresh data.");
@@ -178,7 +184,7 @@ function fetchData(callback)
 	});
 }
 
-// Renew rates file
+// Renews rates file given the rates JSON
 function renewFile(conversionRates)
 {
 	fs.unlinkSync(cachePath);

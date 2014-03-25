@@ -17,6 +17,8 @@ var listPayment =
 	'start_index' : '1'
 };
 
+// Upon fetchTransactionList returning a JSON, we parse that JSON into an 
+// HTML table that we funnel back up to the requestHandler to display
 function createTransactionsList(callback)
 {
 	fetchTransactionsList(function(transactions)
@@ -55,6 +57,7 @@ function createTransactionsList(callback)
 	});
 }
 
+// Makes a call to the PayPal API to get recent transactions
 function fetchTransactionsList(callback)
 {	
 	paypal_api.payment.list(listPayment, config_opts,

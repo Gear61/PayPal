@@ -1,102 +1,54 @@
 "use strict";
 
 var fs = require('fs');
+var FileReader = require("./FileReader");
 var RateServer = require("./RateServer");
 var TransactionServer = require("./TransactionServer");
 
+// HTML file paths
+var MAIN_MENU = './HTML/MainMenu.html';
+var CURRENCY_CONVERSION_FORM = './HTML/ConvertCurrency.html';
+var GET_RATE_FORM = './HTML/GetRate.html';
+
+// Returns the HTML response
+function renderHTML(body, response)
+{
+	response.writeHead(200,
+	{
+		"Content-Type" : "text/html"
+	});
+	response.write(body);
+	response.end();
+}
+
+// Loads main menu
 function showMenu(response, query)
 {
-	var body = '<HTML>'
-			+ '<HEAD>'
-			+ '<TITLE>Main Page</TITLE>'
-			+ '<META http-equiv=Content-Type content="text/html">'
-			+ '</HEAD>'
-			+ '<body>'
-			+ '<p><H3>PayPal Webapp</H3><p>'
-			+ '<ul>'
-			+ '<li><a href="/paypal/activity">View Transaction History</a></li>'
-			+ '<li><a href="/paypal/ccForm">Convert Currency</a></li>'
-			+ '<li><a href="/paypal/rateForm">Get Conversion Rate</a></li>'
-			+ '</ul>'
-			+ '</body>'
-			+ '</html>';
-
-	response.writeHead(200,
-	{
-		"Content-Type" : "text/html"
-	});
-	response.write(body);
-	response.end();
+	FileReader.fetchFileContents(MAIN_MENU,
+		function(body)
+		{
+		    renderHTML(body, response);
+		});
 }
 
+// Load currency conversion form
 function ccForm(response, query)
 {
-	var body = '<html>' + 
-	'<head><title>Convert Currency</title></head>' + 
-	'<body bgcolor=white>' +
-	'<h1>Convert Currency</h1>' + 
-	'<form method=get action=/paypal/currencyConversion>' + 
-	  '<table>' + 
-	    '<tr>' + 
-	      '<td align="right">From (Currency Code):</td>' + 
-		  '<td align="left"><input type="text" name="fromCC" /></td>' + 
-		'</tr>' + 
-		'<tr>' + 
-		  '<td align="right">Amount:</td>' + 
-	      '<td align="left"><input type="number" name="amount" /></td>' + 
-		'</tr>' + 
-	    '<tr>' + 
-	      '<td align="right">To (Currency Code):</td>' + 
-	      '<td align="left"><input type="text" name="toCC" /></td>' + 
-	    '</tr>' + 
-		'<tr>' + 
-	      '<td align="right"><input type=submit name=convert_currency value="Convert"></td>' +
-	      '<td align="left"><input type="checkbox" name="fresh">Fresh Rates</td>' + 
-	    '</tr>' + 
-	  '</table>' + 
-	'</form>' + 
-	'</body>' + 
-	'</html>';
-
-	response.writeHead(200,
-	{
-		"Content-Type" : "text/html"
-	});
-	response.write(body);
-	response.end();
+	FileReader.fetchFileContents(CURRENCY_CONVERSION_FORM,
+		function(body)
+		{
+			renderHTML(body, response);
+		});
 }
 
+// Load rate fetching form
 function rateForm(response, query)
 {
-	var body = '<html>' + 
-	'<head><title>Get Conversion Rate</title></head>' + 
-	'<body bgcolor=white>' +
-	'<h1>Get Conversion Rate</h1>' + 
-	'<form method=get action=/paypal/conversionRate>' + 
-	  '<table>' + 
-	    '<tr>' + 
-	      '<td align="right">Currency Code 1:</td>' + 
-		  '<td align="left"><input type="text" name="fromCC" /></td>' + 
-		'</tr>' + 
-		'<tr>' + 
-		  '<td align="right">Currency Code 2:</td>' + 
-	      '<td align="left"><input type="text" name="toCC" /></td>' + 
-		'</tr>' + 
-		'<tr>' + 
-	      '<td align="right"><input type=submit name=convert_currency value="Get Rate"></td>' + 
-	      '<td align="left"><input type="checkbox" name="fresh">Fresh Rates</td>' + 
-	    '</tr>' + 
-	  '</table>' + 
-	'</form>' + 
-	'</body>' + 
-	'</html>';
-
-	response.writeHead(200,
-	{
-		"Content-Type" : "text/html"
-	});
-	response.write(body);
-	response.end();
+	FileReader.fetchFileContents(GET_RATE_FORM,
+		function(body)
+		{
+			renderHTML(body, response);
+		});
 }
 
 function activity(response, query)
