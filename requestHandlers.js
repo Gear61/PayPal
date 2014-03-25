@@ -5,12 +5,19 @@ var FileReader = require("./FileReader");
 var RateServer = require("./RateServer");
 var TransactionServer = require("./TransactionServer");
 
-// HTML file paths
+/* HTML file paths */
+// FORMS
 var MAIN_MENU = './HTML/MainMenu.html';
-var CURRENCY_CONVERSION_FORM = './HTML/ConvertCurrency.html';
+var CURRENCY_CONVERSION_FORM = './HTML/ConvertCurrencyForm.html';
 var GET_RATE_FORM = './HTML/GetRate.html';
 
-// Returns the HTML response
+// RESPONSES
+var TRANSACTIONS = './HTML/Transactions.html';
+var CONVERTED_CURRENCY = './HTML/ConvertedCurrency.html';
+var CONVERSION_RATE = './HTML/Rate.html';
+
+// Given HTML and an HTTP response, this function will write the
+// HTML to the response
 function renderHTML(body, response)
 {
 	response.writeHead(200,
@@ -51,39 +58,20 @@ function rateForm(response, query)
 		});
 }
 
+// Displays recent PayPal transactions
 function activity(response, query)
 {
 	TransactionServer.createTransactionsList(function(message)
 	{
-		var body = '<html>'
-				+ '<head><title>Transactions List</title>'
-				+ '<style>'
-				+ 'table,th,td'
-				+ '{'
-				+ 	'border:1px solid black;'
-				+ 	'border-collapse:collapse;'
-				+ '}'
-				+ 	'th,td'
-				+ '{'
-				+ 	'padding:5px;'
-				+ '}'
-				+ '</style>'
-				+ '</head>'
-				+ '<body bgcolor=white>'
-				+ '<h1>Transactions List</h1>'
-				+ message
-				+ '</body>'
-				+ '</html>';
-
-		response.writeHead(200,
-		{
-			"Content-Type" : "text/html"
-		});
-		response.write(body);
-		response.end();
+		FileReader.fetchFileContents(TRANSACTIONS,
+			function(body)
+			{
+				renderHTML(body.replace("TRANSACTIONS GO HERE", message), response);
+			});
 	});
 }
 
+// Converts X amount of currency A into currency B
 function currencyConversion(response, query)
 {
 	var fresh;
@@ -96,25 +84,17 @@ function currencyConversion(response, query)
 		fresh = false;
 	}
 	RateServer.convertAmount(query['fromCC'], query['amount'], query['toCC'], fresh,
-		  function(message)
-		  {
-				var body = '<html>' + 
-				'<head><title>Converted Currency</title></head>' + 
-				'<body bgcolor=white>' +
-				'<h1>Converted Currency</h1>' + 
-				message + 
-				'</body>' + 
-				'</html>';
-		
-				response.writeHead(200,
+		function(message)
+		{
+			FileReader.fetchFileContents(CONVERTED_CURRENCY,
+				function(body)
 				{
-					"Content-Type" : "text/html"
+					renderHTML(body.replace("CONVERTED CURRENCY GOES HERE", message), response);
 				});
-				response.write(body);
-				response.end();
-		 });
+		});
 }
 
+// Gives how many of Currency B can be obtained per unit of Currency A
 function conversionRate(response, query)
 {
 	var fresh;
@@ -127,23 +107,14 @@ function conversionRate(response, query)
 		fresh = false;
 	}
 	RateServer.getConversionRate(query['fromCC'], query['toCC'], fresh,
-			function(message)
-			{
-				var body = '<html>' + 
-				'<head><title>Conversion Rate</title></head>' + 
-				'<body bgcolor=white>' +
-				'<h1>Conversion Rate</h1>' + 
-				message + 
-				'</body>' + 
-				'</html>';
-			
-				response.writeHead(200,
+		function(message)
+		{
+			FileReader.fetchFileContents(CONVERSION_RATE,
+				function(body)
 				{
-					"Content-Type" : "text/html"
+					renderHTML(body.replace("CONVERSION RATE GOES HERE", message), response);
 				});
-				response.write(body);
-				response.end();
-			});
+		});
 }
 
 exports.showMenu = showMenu;

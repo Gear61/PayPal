@@ -1,0 +1,26 @@
+<html> 
+<head><title>Convert Currency</title></head>
+<body bgcolor=white>
+<h1>Convert Currency</h1> 
+	<form method=get action=/paypal/currencyConversion> 
+		<table>
+			<tr>
+			  <td align="right">From (Currency Code):</td>
+			  <td align="left"><input type="text" name="fromCC" /></td>
+			</tr>
+			<tr>
+			  <td align="right">Amount:</td> 
+			  <td align="left"><input type="number" step="any" name="amount" /></td>
+			</tr>
+			<tr>
+			  <td align="right">To (Currency Code):</td>
+			  <td align="left"><input type="text" name="toCC" /></td> 
+			</tr>
+			<tr>
+			  <td align="right"><input type=submit name=convert_currency value="Convert"></td>
+			  <td align="left"><input type="checkbox" name="fresh">Fresh Rates</td>
+			</tr>
+		</table>
+	</form> 
+	</body>
+</html>
