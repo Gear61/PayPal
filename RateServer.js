@@ -1,9 +1,10 @@
 var fs = require('fs');
+var FileReader = require("./FileReader");
 
 var http = require("http");
 var baseURL = 'http://openexchangerates.org/api/latest.json?app_id=';
 var myID = 'f7964e7ee9ac43909deafb08d556e640';
-var cachePath = './rates.txt';
+var CACHE_PATH = './rates.txt';
 
 // Convert error code from the getRate function into a string message
 function codeToMessage(errorCode, countryCodeFROM, countryCodeTO, callback)
@@ -22,6 +23,7 @@ function codeToMessage(errorCode, countryCodeFROM, countryCodeTO, callback)
 	}
 }
 
+// Currency conversion
 function convertAmount(countryCodeFROM, Amount, countryCodeTO, fresh, callback)
 {
 	if (countryCodeFROM.trim() == '' || Amount.trim() == '' ||
@@ -29,6 +31,7 @@ function convertAmount(countryCodeFROM, Amount, countryCodeTO, fresh, callback)
 	{
 		callback("Please make sure that ALL inputs are non-blank.");
 	}
+	// Get the rate between the 2 currencies and do a simple multiplication if all goes right
 	getRate(countryCodeFROM, countryCodeTO, fresh, function (conversionRate)
 	{
 		// Error received
@@ -49,6 +52,8 @@ function convertAmount(countryCodeFROM, Amount, countryCodeTO, fresh, callback)
 	});
 }
 
+// The "outer" layer of the conversion rate fetcher. Calls the getRate function
+// and constructs a message to funnel back up to the requestHandler
 function getConversionRate(countryCodeFROM, countryCodeTO, fresh, callback)
 {
 	if (countryCodeFROM.trim() == '' || countryCodeTO.trim() == '')
@@ -74,6 +79,7 @@ function getConversionRate(countryCodeFROM, countryCodeTO, fresh, callback)
 	});
 }
 
+// Gets the conversion rate between 2 currencies
 function getRate(countryCode1, countryCode2, fresh, callback)
 {
 	// If we want fresh data, call fetchData and use its return value to
@@ -113,7 +119,7 @@ function getRate(countryCode1, countryCode2, fresh, callback)
 			{
 				getRateFromFile(countryCode2, function(rateB)
 				{
-					// We know now that the cache exists
+					// We know now that the cache exists, so there's no reason to check for -2
 					if (rateB == -1)
 					{
 						callback(-1.5);
@@ -130,36 +136,21 @@ function getRate(countryCode1, countryCode2, fresh, callback)
 
 function getRateFromFile(countryCode, callback)
 {
-	if (fs.existsSync(cachePath))
-	{
-	    // Get rate
-		fs.readFile(cachePath, {encoding: 'utf-8'}, function(err, data)
+	FileReader.fetchFileContents(CACHE_PATH,
+		function(body)
 		{
-		    if (!err)
+			// We look for the pattern \n(COUNTRY_CODE)(space)
+	    	if (body.indexOf('\n' + countryCode + ' ') == -1)
 		    {
-			    // We look for the pattern \n(COUNTRY_CODE) (space)
-		    	if (data.indexOf('\n' + countryCode + ' ') == -1)
-			    {
-			    	callback(-1);
-			    }
-			    // If we find it, we split it what comes after it but before the new line, 
-		    	// which is the rate we're interested in
-		    	else
-			    {
-			    	callback((data.split(countryCode + " ")[1]).split('\n')[0]);
-			    }
+		    	callback(-1);
 		    }
-		    else
+		    // If we find it, we split it for what comes after it but before the new line, 
+	    	// which is the rate we're interested in
+	    	else
 		    {
-		        console.log(err);
+		    	callback((body.split(countryCode + " ")[1]).split('\n')[0]);
 		    }
 		});
-	}
-	else
-	{
-		console.log("Cache doesn't exist.");
-		callback(-2);
-	}
 }
 
 // Uses the API to grab fresh conversion rates
@@ -187,7 +178,7 @@ function fetchData(callback)
 // Renews rates file given the rates JSON
 function renewFile(conversionRates)
 {
-	fs.unlinkSync(cachePath);
+	fs.unlinkSync(CACHE_PATH);
 	var fileContents = '';
 	for (key in conversionRates)
 	{
@@ -196,7 +187,7 @@ function renewFile(conversionRates)
 		fileContents += '\n';
 	}
 	
-	fs.writeFile(cachePath, fileContents, function(err)
+	fs.writeFile(CACHE_PATH, fileContents, function(err)
 	{
 	    if(err)
 	    {
